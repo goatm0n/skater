@@ -1,25 +1,25 @@
 use bevy::prelude::*;
 
 #[derive(Component)]
-struct Person;
+struct Character;
 
 #[derive(Component)]
 struct Name(String);
 
-fn add_people(mut commands: Commands) {
-    commands.spawn((Person, Name("Goatman".to_string())));
-    commands.spawn((Person, Name("Stabby Joe".to_string())));
-    commands.spawn((Person, Name("Niko".to_string())));
+fn add_characters(mut commands: Commands) {
+    commands.spawn((Character, Name("Goatman".to_string())));
+    commands.spawn((Character, Name("Stabby Joe".to_string())));
+    commands.spawn((Character, Name("Niko".to_string())));
 
 }
 
 #[derive(Resource)]
 struct GreetTimer(Timer);
 
-fn greet_people(
+fn greet_characters(
     time: Res<Time>,
     mut timer: ResMut<GreetTimer>,
-    query: Query<&Name, With<Person>>
+    query: Query<&Name, With<Character>>
 ) {
     if timer.0.tick(time.delta()).just_finished() {
         for name in &query {
@@ -28,21 +28,26 @@ fn greet_people(
     }
 }
 
-pub struct HelloPlugin;
-
-impl Plugin for HelloPlugin {
-    fn build(&self, app: &mut App) {
-        app
-        .insert_resource(GreetTimer(
-            Timer::from_seconds(2.0, TimerMode::Repeating)
-        ))
-        .add_systems(Startup, add_people)
-        .add_systems(Update, greet_people);
-    }
-}
 
 fn main() {
     App::new()
-    .add_plugins((DefaultPlugins, HelloPlugin))
+        // resouces:
+        .insert_resource(GreetTimer(
+            Timer::from_seconds(2.0, TimerMode::Repeating)
+        ))
+        
+        // plugins:
+        // most of bevys functionality is contained within DefaultPlugins
+        .add_plugins(DefaultPlugins)
+
+        // events:
+
+
+        // systems to run at startup
+        .add_systems(Startup, add_characters)
+
+        // systems to run each frame
+        .add_systems(Update, greet_characters)
+
     .run();
 }
